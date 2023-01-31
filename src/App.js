@@ -13,8 +13,11 @@ function App() {
   const [nextPage, setNextPage] = useState("");
 
   useEffect(() => {
+    let cancel;
     axios
-      .get(currentPage)
+      .get(currentPage, {
+        cancelToken: new axios.CancelToken((c) => (cancel = c)),
+      })
       .then((res) => {
         setPokemon(res.data.results.map((p) => p.name));
         setPrevPage(res.data.previous);
@@ -25,6 +28,9 @@ function App() {
         console.log(error);
         setLoading(false);
       });
+    return () => {
+      cancel();
+    };
   }, [currentPage]);
 
   const toPrevPage = () => {
