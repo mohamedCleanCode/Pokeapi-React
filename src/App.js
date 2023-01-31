@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import Pagination from "./components/Pagination";
 import PokeApiList from "./components/PokeApiList";
 
 function App() {
@@ -8,23 +9,38 @@ function App() {
   const [currentPage, setCurrentPage] = useState(
     "https://pokeapi.co/api/v2/pokemon"
   );
+  const [prevPage, setPrevPage] = useState("");
+  const [nextPage, setNextPage] = useState("");
 
   useEffect(() => {
     axios
       .get(currentPage)
       .then((res) => {
         setPokemon(res.data.results.map((p) => p.name));
+        setPrevPage(res.data.previous);
+        setNextPage(res.data.next);
         setLoading(false);
       })
       .catch((error) => {
         console.log(error);
         setLoading(false);
       });
-  }, []);
+  }, [currentPage]);
+
+  const toPrevPage = () => {
+    setCurrentPage(prevPage);
+  };
+  const toNextPage = () => {
+    setCurrentPage(nextPage);
+  };
 
   return (
     <div className="App">
       {loading ? "Loading....." : <PokeApiList pokemon={pokemon} />}
+      <Pagination
+        toPrevPage={prevPage ? toPrevPage : null}
+        toNextPage={nextPage ? toNextPage : null}
+      />
     </div>
   );
 }
